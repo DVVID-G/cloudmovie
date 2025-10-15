@@ -1,3 +1,6 @@
+/**
+ * User model: Mongoose schema with validation and password hashing.
+ */
 const mongoose = require('mongoose');
 import type { Document, CallbackWithoutResultAndOptionalError, CallbackError } from 'mongoose';
 const bcrypt = require('bcrypt');
@@ -5,6 +8,9 @@ const dotenv = require('dotenv');
 dotenv.config();
 const SALT_ROUNDS = Number(process.env.SALT_ROUNDS || 10);
 
+/**
+ * User schema definition
+ */
 const userSchema = new mongoose.Schema({
   firstName: {
     type: String,
@@ -48,6 +54,9 @@ const userSchema = new mongoose.Schema({
   resetPasswordExpiresAt: { type: Date, default: null },
 }, { timestamps: true });
 
+/**
+ * Hash password before saving if modified.
+ */
 userSchema.pre('save', async function (
   this: Document & { password: string; isModified: (path: string) => boolean },
   next: CallbackWithoutResultAndOptionalError
