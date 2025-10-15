@@ -1,13 +1,13 @@
-import routes from '@/routes/routes';
-import express, { type Application } from 'express';
-import morgan from 'morgan';
+const express = require('express');
+const morgan = require('morgan');
+const routesFactory = require('@/routes/routes');
 
-const app: Application = express();
+const app = express();
 
 app.use(express.json());
 app.use(morgan('dev'));
 
-app.use('/api/v1', routes());
+// routesFactory expected to be a function returning a router
+app.use('/api/v1', routesFactory());
 
-
-export default app;
+module.exports = app;

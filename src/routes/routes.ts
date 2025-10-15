@@ -1,15 +1,14 @@
-import { Router } from "express";
+const express = require('express');
+const userRoutes = require('./userRoutes');
 
-const router = Router();
-
-
-export default () => {
-// Define your routes here
-
-  router.get("/health/", (req, res) => {
-    res.send("api is healthy");
+function buildRoutes() {
+  const router = express.Router();
+  router.get('/health', (_req: any, res: any) => {
+    res.send('api is healthy');
   });
-
+  router.use('/users', userRoutes);
   return router;
-};
+}
+
+module.exports = buildRoutes;
 
