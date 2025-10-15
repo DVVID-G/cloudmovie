@@ -131,13 +131,6 @@ MAILTRAP_PASS=tu-pass-mailtrap
 # MAILTRAP_SECURE=false
 # MAILTRAP_TLS_REJECT_UNAUTHORIZED=true
 
-# Opción B: SMTP genérico
-# SMTP_HOST=smtp.tu-proveedor.com
-# SMTP_PORT=587
-# SMTP_USER=usuario
-# SMTP_PASS=clave
-# SMTP_SECURE=false
-# SMTP_TLS_REJECT_UNAUTHORIZED=true
 
 FROM_EMAIL="App <no-reply@tu-dominio.com>"
 APP_URL=http://localhost:4000
