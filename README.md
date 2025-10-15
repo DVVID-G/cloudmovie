@@ -1,6 +1,7 @@
 # CloudMovie API
 
 Backend Node.js + TypeScript (CommonJS) con Express y Mongoose. Implementa un CRUD básico de usuarios siguiendo una separación por capas (DAO/Controller/Routes) y un endpoint de health.
+Además, incluye login por email y password con bcrypt.
 
 ## Requisitos
 - Node.js 18+
@@ -17,6 +18,7 @@ npm install
 ```env
 PORT=4000
 MONGO_URI=mongodb://localhost:27017/cloudmovie
+SALT_ROUNDS=10
 ```
 
 3) Arranque en desarrollo (watch con tsx):
@@ -60,11 +62,13 @@ Base URL: `http://localhost:4000/api/v1`
   - GET `/users/:id` → Obtiene usuario por id
   - PUT `/users/:id` → Actualiza usuario
   - DELETE `/users/:id` → Elimina usuario
+  - POST `/users/login` → Login con email y password (devuelve user sin password; puedes añadir JWT)
 
 Notas de validación (según `src/model/user.ts`):
 - `firstName` y `lastName`: requeridos, trim y longitud máxima 50.
 - `email`: requerido, único, lowercase, trim, validado con regex.
 - `password`: requerido, mínimo 8, con mayúscula, número y carácter especial.
+  - Se hashea automáticamente con bcrypt en un hook `pre('save')`. Configurable vía `SALT_ROUNDS`.
 
 ## Pruebas rápidas (PowerShell)
 Crear usuario:
@@ -96,14 +100,23 @@ Eliminar:
 curl.exe -X DELETE http://localhost:4000/api/v1/users/<ID>
 ```
 
+Login:
+```powershell
+curl.exe -X POST http://localhost:4000/api/v1/users/login ^
+  -H "Content-Type: application/json" ^
+  -d "{\"email\":\"ana.perez@example.com\",\"password\":\"Segura1!\"}"
+```
+
 ## Scripts disponibles
 - `npm run dev`: arranca en desarrollo con recarga (tsx + TypeScript)
+  - Si usas CommonJS con `require`, los aliases como `@server/server` pueden no resolverse en runtime. En ese caso cambia a rutas relativas (`require('./server/server')`).
 
 ## Siguientes pasos sugeridos
 - Ocultar `password` en respuestas (sanitizar salida del DAO/Controller).
 - Validar payloads con Zod/Joi (create/update).
 - Añadir paginación a `GET /users` (query: `page`, `limit`).
 - Tests (unit y de integración con Mongo Memory Server).
+- JWT: añade `jsonwebtoken`, `JWT_SECRET` y genera token en `/users/login` si lo necesitas.
 
 ---
 Si necesitas un ejemplo de colección para Postman con los endpoints preconfigurados, avísame y la agrego.
