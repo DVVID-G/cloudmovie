@@ -1,6 +1,7 @@
 const GlobalController = require('./globalController');
 const { userDao } = require('../dao/userDao');
 const bcrypt = require('bcrypt');
+const userService = require('../services/userServices');
 
 class UserController extends GlobalController {
     constructor() {
@@ -37,6 +38,37 @@ class UserController extends GlobalController {
     } catch (err) {
       console.error('Login error:', err);
       return res.status(500).json({ error: 'Error interno en login' });
+    }
+  }
+
+  // POST /api/v1/users/forgot-password
+  async forgotPassword(req: any, res: any) {
+    try {
+      const { email } = req.body || {};
+      if (!email) return res.status(400).json({ error: 'Email es requerido' });
+      await userService.requestPasswordReset(email);
+      return res.status(200).json({ message: 'Si el correo existe, se envió un email con instrucciones' });
+    } catch (err) {
+      console.error('forgotPassword error:', err);
+      return res.status(500).json({ error: 'Error interno' });
+    }
+  }
+
+  // POST /api/v1/users/reset-password
+  async resetPassword(req: any, res: any) {
+    try {
+      const { email, token, newPassword } = req.body || {};
+      if (!email || !token || !newPassword) {
+        return res.status(400).json({ error: 'Email, token y nueva contraseña son requeridos' });
+      }
+      const result = await userService.resetPassword(email, token, newPassword);
+      if (!result.ok) {
+        return res.status(400).json({ error: result.error || 'No se pudo restablecer la contraseña' });
+      }
+      return res.status(200).json({ message: 'Contraseña actualizada correctamente' });
+    } catch (err) {
+      console.error('resetPassword error:', err);
+      return res.status(500).json({ error: 'Error interno' });
     }
   }
 }

@@ -63,6 +63,8 @@ Base URL: `http://localhost:4000/api/v1`
   - PUT `/users/:id` → Actualiza usuario
   - DELETE `/users/:id` → Elimina usuario
   - POST `/users/login` → Login con email y password (devuelve user sin password; puedes añadir JWT)
+  - POST `/users/forgot-password` → Envía email con link de restablecimiento
+  - POST `/users/reset-password` → Cambia la contraseña con email + token
 
 Notas de validación (según `src/model/user.ts`):
 - `firstName` y `lastName`: requeridos, trim y longitud máxima 50.
@@ -105,6 +107,41 @@ Login:
 curl.exe -X POST http://localhost:4000/api/v1/users/login ^
   -H "Content-Type: application/json" ^
   -d "{\"email\":\"ana.perez@example.com\",\"password\":\"Segura1!\"}"
+```
+
+## Recuperación de contraseña
+
+Endpoints nuevos:
+- POST `/api/v1/users/forgot-password`
+  - body JSON: `{ "email": "ana.perez@example.com" }`
+  - respuesta: 200 con mensaje genérico (evita enumeración de usuarios)
+- POST `/api/v1/users/reset-password`
+  - body JSON: `{ "email": "ana.perez@example.com", "token": "<token del email>", "newPassword": "NuevoPass1!" }`
+  - respuesta: 200 si se actualizó la contraseña
+
+Variables de entorno adicionales (.env):
+```env
+# Email (para recuperación de contraseña)
+# Opción A: Mailtrap (recomendado para testing)
+MAILTRAP_HOST=sandbox.smtp.mailtrap.io
+MAILTRAP_PORT=2525
+MAILTRAP_USER=tu-user-mailtrap
+MAILTRAP_PASS=tu-pass-mailtrap
+# Opcional TLS en desarrollo (si hay proxy/cert autofirmado):
+# MAILTRAP_SECURE=false
+# MAILTRAP_TLS_REJECT_UNAUTHORIZED=true
+
+# Opción B: SMTP genérico
+# SMTP_HOST=smtp.tu-proveedor.com
+# SMTP_PORT=587
+# SMTP_USER=usuario
+# SMTP_PASS=clave
+# SMTP_SECURE=false
+# SMTP_TLS_REJECT_UNAUTHORIZED=true
+
+FROM_EMAIL="App <no-reply@tu-dominio.com>"
+APP_URL=http://localhost:4000
+RESET_TTL_MS=900000
 ```
 
 ## Scripts disponibles
