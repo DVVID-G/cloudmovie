@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 import type { Document, CallbackWithoutResultAndOptionalError, CallbackError } from 'mongoose';
 const bcrypt = require('bcrypt');
-const SALT_ROUNDS = 10;
+const dotenv = require('dotenv');
+dotenv.config();
+const SALT_ROUNDS = Number(process.env.SALT_ROUNDS || 10);
 
 const userSchema = new mongoose.Schema({
   firstName: {
@@ -42,6 +44,8 @@ const userSchema = new mongoose.Schema({
       message: 'La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un carácter especial'
     }
   },
+  resetPasswordTokenHash: { type: String, default: null, select: false },
+  resetPasswordExpiresAt: { type: Date, default: null },
 }, { timestamps: true });
 
 userSchema.pre('save', async function (

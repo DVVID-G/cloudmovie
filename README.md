@@ -107,6 +107,35 @@ curl.exe -X POST http://localhost:4000/api/v1/users/login ^
   -d "{\"email\":\"ana.perez@example.com\",\"password\":\"Segura1!\"}"
 ```
 
+## Recuperación de contraseña
+
+Endpoints nuevos:
+- POST `/api/v1/users/forgot-password`
+  - body JSON: `{ "email": "ana.perez@example.com" }`
+  - respuesta: 200 con mensaje genérico (evita enumeración de usuarios)
+- POST `/api/v1/users/reset-password`
+  - body JSON: `{ "email": "ana.perez@example.com", "token": "<token del email>", "newPassword": "NuevoPass1!" }`
+  - respuesta: 200 si se actualizó la contraseña
+
+Variables de entorno adicionales (.env):
+```env
+# Email (para recuperación de contraseña)
+# Opción A: Mailtrap (recomendado para testing)
+MAILTRAP_HOST=sandbox.smtp.mailtrap.io
+MAILTRAP_PORT=587
+MAILTRAP_USER=tu-user-mailtrap
+MAILTRAP_PASS=tu-pass-mailtrap
+
+# Opción B: SMTP genérico
+# SMTP_HOST=smtp.tu-proveedor.com
+# SMTP_PORT=587
+# SMTP_USER=usuario
+# SMTP_PASS=clave
+FROM_EMAIL="App <no-reply@tu-dominio.com>"
+APP_URL=http://localhost:4000
+RESET_TTL_MS=900000
+```
+
 ## Scripts disponibles
 - `npm run dev`: arranca en desarrollo con recarga (tsx + TypeScript)
   - Si usas CommonJS con `require`, los aliases como `@server/server` pueden no resolverse en runtime. En ese caso cambia a rutas relativas (`require('./server/server')`).
