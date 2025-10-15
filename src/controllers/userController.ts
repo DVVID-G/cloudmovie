@@ -1,10 +1,11 @@
 const GlobalController = require('./globalController');
 const { userDao } = require('../dao/userDao');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const userService = require('../services/userServices');
 
 /**
- * UserController extends the base CRUD controller with auth endpoints.
+ * UserController extends the base CRUD controller with auth and password reset endpoints.
  */
 class UserController extends GlobalController {
     constructor() {
@@ -12,9 +13,9 @@ class UserController extends GlobalController {
     }
 
   /**
+   * Authenticate a user using email and password
    * POST /api/v1/users/login
-   * Authenticate a user using email and password.
-   * @param {import('express').Request} req
+   * @param {import('express').Request} req - body: { email, password }
    * @param {import('express').Response} res
    */
     async login(req: any, res: any) {
@@ -38,11 +39,15 @@ class UserController extends GlobalController {
       // Sanitiza salida (no expongas password)
       const { password: _pwd, ...safe } = user.toObject ? user.toObject() : user;
 
-      // Si más tarde usas JWT:
-      // const token = jwt.sign({ sub: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
-      // return res.status(200).json({ user: safe, token });
-
-      return res.status(200).json({ user: safe });
+      // Issue JWT
+      const secret = process.env.JWT_SECRET;
+      if (!secret) {
+        console.error('JWT_SECRET not configured');
+        return res.status(500).json({ error: 'Server misconfiguration' });
+      }
+      const expiresIn = process.env.JWT_EXPIRES_IN || '1h';
+      const token = jwt.sign({ sub: user._id.toString(), email: user.email }, secret, { expiresIn });
+      return res.status(200).json({ user: safe, token });
     } catch (err) {
       console.error('Login error:', err);
       return res.status(500).json({ error: 'Error interno en login' });
@@ -50,10 +55,10 @@ class UserController extends GlobalController {
   }
 
   /**
+   * Generate and email a password reset link if the email exists
    * POST /api/v1/users/forgot-password
-   * Generate and email a password reset link if the email exists.
    * Always returns a generic message to avoid user enumeration.
-   * @param {import('express').Request} req
+   * @param {import('express').Request} req - body: { email }
    * @param {import('express').Response} res
    */
   async forgotPassword(req: any, res: any) {
@@ -69,9 +74,9 @@ class UserController extends GlobalController {
   }
 
   /**
+   * Reset password using email, token from email, and new password
    * POST /api/v1/users/reset-password
-   * Reset password using email, token from email, and new password.
-   * @param {import('express').Request} req
+   * @param {import('express').Request} req - body: { email, token, newPassword }
    * @param {import('express').Response} res
    */
   async resetPassword(req: any, res: any) {
@@ -88,6 +93,24 @@ class UserController extends GlobalController {
     } catch (err) {
       console.error('resetPassword error:', err);
       return res.status(500).json({ error: 'Error interno' });
+    }
+  }
+
+  /**
+   * Stateless logout: the client should delete its token. Server doesn't persist revocations
+   * POST /api/v1/users/logout
+   * @param {import('express').Request} req
+   * @param {import('express').Response} res
+   */
+  async logout(req: any, res: any) {
+    try {
+      // If you set auth cookies, clear them here (no-op if not using cookies)
+      try { res.clearCookie?.('access_token'); } catch {}
+      try { res.clearCookie?.('refresh_token'); } catch {}
+      return res.status(200).json({ message: 'Logged out' });
+    } catch (err) {
+      console.error('logout error:', err);
+      return res.status(500).json({ error: 'Internal error' });
     }
   }
 }

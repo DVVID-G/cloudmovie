@@ -7,12 +7,21 @@ class UserDao extends GlobalDao {
         super(userModel);
     }
 
-    /** Find a user by email */
+    /**
+     * Find a user by email
+     * @param {string} email - User email to search (case-insensitive)
+     * @returns {Promise<any|null>} The Mongoose document or null
+     */
     async findByEmail(email: string) {
         return await this.model.findOne({ email: email.toLowerCase().trim() }).lean(false);
     }
 
-    /** Set a password reset token hash and expiration for an email */
+    /**
+     * Set a password reset token hash and expiration for an email
+     * @param {string} email
+     * @param {string} tokenHash - SHA256 hash of the reset token
+     * @param {Date} expiresAt - Expiration datetime
+     */
     async setResetToken(email: string, tokenHash: string, expiresAt: Date) {
         const emailNorm = email.toLowerCase().trim();
         return await this.model.findOneAndUpdate(
@@ -22,7 +31,11 @@ class UserDao extends GlobalDao {
         );
     }
 
-    /** Find a user by email and valid (non-expired) reset token hash */
+    /**
+     * Find a user by email and valid (non-expired) reset token hash
+     * @param {string} email
+     * @param {string} tokenHash - SHA256 hash of the reset token
+     */
     async findByResetToken(email: string, tokenHash: string) {
         const emailNorm = email.toLowerCase().trim();
         return await this.model.findOne({
@@ -32,7 +45,11 @@ class UserDao extends GlobalDao {
         }).lean(false);
     }
 
-    /** Update user's password and clear reset fields; triggers hashing via pre-save hook */
+    /**
+     * Update user's password and clear reset fields; triggers hashing via pre-save hook
+     * @param {string} userId
+     * @param {string} newPassword
+     */
     async updatePasswordAndClearReset(userId: string, newPassword: string) {
         const user = await this.model.findById(userId).lean(false);
         if (!user) return null;
