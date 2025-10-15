@@ -1,3 +1,4 @@
+/** Data access for Users with auth helpers. */
 const { GlobalDao } = require('./globalDao');
 const userModel = require('../model/user');
 
@@ -6,10 +7,12 @@ class UserDao extends GlobalDao {
         super(userModel);
     }
 
+    /** Find a user by email */
     async findByEmail(email: string) {
         return await this.model.findOne({ email: email.toLowerCase().trim() }).lean(false);
     }
 
+    /** Set a password reset token hash and expiration for an email */
     async setResetToken(email: string, tokenHash: string, expiresAt: Date) {
         const emailNorm = email.toLowerCase().trim();
         return await this.model.findOneAndUpdate(
@@ -19,6 +22,7 @@ class UserDao extends GlobalDao {
         );
     }
 
+    /** Find a user by email and valid (non-expired) reset token hash */
     async findByResetToken(email: string, tokenHash: string) {
         const emailNorm = email.toLowerCase().trim();
         return await this.model.findOne({
@@ -28,6 +32,7 @@ class UserDao extends GlobalDao {
         }).lean(false);
     }
 
+    /** Update user's password and clear reset fields; triggers hashing via pre-save hook */
     async updatePasswordAndClearReset(userId: string, newPassword: string) {
         const user = await this.model.findById(userId).lean(false);
         if (!user) return null;

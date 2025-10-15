@@ -1,3 +1,7 @@
+/**
+ * Application entrypoint.
+ * Loads environment variables, connects to the database, and starts the HTTP server.
+ */
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -9,6 +13,10 @@ connectToDatabase().catch((error: unknown) => {
   process.exit(1);
 });
 
+/**
+ * Port where the HTTP server will listen.
+ * @type {number|string}
+ */
 const PORT = process.env.PORT || 4000;
 
 app.listen(PORT, () => {

@@ -2,7 +2,16 @@ const crypto = require('crypto');
 const mailerService = require('./mailerService');
 const { userDao } = require('../dao/userDao');
 
+/**
+ * UserService provides higher-level user operations such as password reset flows.
+ */
 class UserService {
+	/**
+	 * Initiates a password reset flow by generating a token and sending an email.
+	 * Returns a generic response regardless of user existence to avoid enumeration.
+	 * @param {string} email
+	 * @returns {Promise<{sent: boolean}>}
+	 */
 	async requestPasswordReset(email: string) {
 		const user = await userDao.findByEmail(email);
 		// Always respond as if email was sent (avoid user enumeration)
@@ -31,6 +40,13 @@ class UserService {
 			return { sent: true };
 	}
 
+	/**
+	 * Completes a password reset given email, token, and a new password.
+	 * @param {string} email
+	 * @param {string} token
+	 * @param {string} newPassword
+	 * @returns {Promise<{ok: boolean, error?: string}>}
+	 */
 	async resetPassword(email: string, token: string, newPassword: string) {
 		const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
 		const user = await userDao.findByResetToken(email, tokenHash);
