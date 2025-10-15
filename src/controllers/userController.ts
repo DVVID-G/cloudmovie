@@ -3,12 +3,20 @@ const { userDao } = require('../dao/userDao');
 const bcrypt = require('bcrypt');
 const userService = require('../services/userServices');
 
+/**
+ * UserController extends the base CRUD controller with auth endpoints.
+ */
 class UserController extends GlobalController {
     constructor() {
         super(userDao);
     }
 
-    // POST /api/v1/users/login
+  /**
+   * POST /api/v1/users/login
+   * Authenticate a user using email and password.
+   * @param {import('express').Request} req
+   * @param {import('express').Response} res
+   */
     async login(req: any, res: any) {
     try {
       const { email, password } = req.body || {};
@@ -41,7 +49,13 @@ class UserController extends GlobalController {
     }
   }
 
-  // POST /api/v1/users/forgot-password
+  /**
+   * POST /api/v1/users/forgot-password
+   * Generate and email a password reset link if the email exists.
+   * Always returns a generic message to avoid user enumeration.
+   * @param {import('express').Request} req
+   * @param {import('express').Response} res
+   */
   async forgotPassword(req: any, res: any) {
     try {
       const { email } = req.body || {};
@@ -54,7 +68,12 @@ class UserController extends GlobalController {
     }
   }
 
-  // POST /api/v1/users/reset-password
+  /**
+   * POST /api/v1/users/reset-password
+   * Reset password using email, token from email, and new password.
+   * @param {import('express').Request} req
+   * @param {import('express').Response} res
+   */
   async resetPassword(req: any, res: any) {
     try {
       const { email, token, newPassword } = req.body || {};

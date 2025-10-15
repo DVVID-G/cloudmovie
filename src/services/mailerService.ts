@@ -1,3 +1,6 @@
+/**
+ * MailerService: selects an SMTP transport (Mailtrap or generic) and sends emails.
+ */
 const nodemailer = require('nodemailer');
 const dotenv = require('dotenv');
 dotenv.config();
@@ -51,7 +54,12 @@ class MailerService {
 		this.transporter = nodemailer.createTransport({ jsonTransport: true });
 	}
 
-	async sendPasswordResetEmail(to: string, resetUrl: string) {
+		/**
+		 * Send password reset email containing a link to reset the password.
+		 * @param {string} to - Recipient email
+		 * @param {string} resetUrl - URL with reset token
+		 */
+		async sendPasswordResetEmail(to: string, resetUrl: string) {
 		const from = process.env.FROM_EMAIL || 'no-reply@example.com';
 		const subject = 'Recuperación de contraseña';
 		const text = `Hola,\n\nHas solicitado restablecer tu contraseña. Haz clic en el siguiente enlace para continuar:\n${resetUrl}\n\nSi no solicitaste este cambio, puedes ignorar este correo.`;

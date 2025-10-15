@@ -1,8 +1,20 @@
+/**
+ * Base controller providing generic CRUD HTTP handlers.
+ * Delegates data access to an injected DAO.
+ */
 class GlobalController {
     private dao: any;
+    /**
+     * @param {any} dao - Data Access Object with create/read/list/update/delete methods
+     */
     constructor(dao: any) {
         this.dao = dao;
     }  
+    /**
+     * Create a new resource
+     * @param {import('express').Request} req
+     * @param {import('express').Response} res
+     */
     async create(req: any, res: any) {
         console.log("Creating user with data:", req.body);
         try {
@@ -17,6 +29,11 @@ class GlobalController {
             res.status(500).json({ error: 'Error interno al crear recurso' });
         }
     }
+    /**
+     * Read a resource by id
+     * @param {import('express').Request} req
+     * @param {import('express').Response} res
+     */
     async read(req: any, res: any) {
         try {
             const user = await this.dao.read(req.params.id);
@@ -25,6 +42,11 @@ class GlobalController {
             res.status(404).json({ error});
         }
     }
+    /**
+     * List resources
+     * @param {import('express').Request} _req
+     * @param {import('express').Response} res
+     */
     async list(_req: any, res: any) {
         try {
             const items = await this.dao.list();
@@ -34,6 +56,11 @@ class GlobalController {
             res.status(500).json({ error: 'Error interno al listar recursos' });
         }
     }
+    /**
+     * Update a resource by id
+     * @param {import('express').Request} req
+     * @param {import('express').Response} res
+     */
     async update(req: any, res: any) {
         try {
             const updated = await this.dao.update(req.params.id, req.body);
@@ -43,6 +70,11 @@ class GlobalController {
             res.status(500).json({ error: 'Error interno al actualizar recurso' });
         }
     }
+    /**
+     * Delete a resource by id
+     * @param {import('express').Request} req
+     * @param {import('express').Response} res
+     */
     async delete(req: any, res: any) {
         try {
             const removed = await this.dao.delete(req.params.id);
