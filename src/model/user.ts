@@ -1,4 +1,7 @@
 const mongoose = require('mongoose');
+import type { Document, CallbackWithoutResultAndOptionalError, CallbackError } from 'mongoose';
+const bcrypt = require('bcrypt');
+const SALT_ROUNDS = 10;
 
 const userSchema = new mongoose.Schema({
   firstName: {
@@ -40,5 +43,19 @@ const userSchema = new mongoose.Schema({
     }
   },
 }, { timestamps: true });
+
+userSchema.pre('save', async function (
+  this: Document & { password: string; isModified: (path: string) => boolean },
+  next: CallbackWithoutResultAndOptionalError
+) {
+  // “this” es el documento Mongoose
+  if (!this.isModified('password')) return next();
+  try {
+    this.password = await bcrypt.hash(this.password, SALT_ROUNDS);
+    next();
+  } catch (err) {
+    next(err as CallbackError);
+  }
+});
 
 module.exports = mongoose.model('User', userSchema);

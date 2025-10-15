@@ -96,12 +96,6 @@ Eliminar:
 curl.exe -X DELETE http://localhost:4000/api/v1/users/<ID>
 ```
 
-## Errores comunes y soluciones
-- EPROTO WRONG_VERSION_NUMBER: Estás llamando por HTTPS a un servidor HTTP. Usa `http://` (no `https://`).
-- Cannot find module 'mongoose': Instala dependencias con `npm install` y verifica que `mongoose` esté en `dependencies`.
-- Alias de rutas (@server): El proyecto usa CommonJS con `require`. Si tu editor/intérprete no resuelve el alias `@server/server`, cambia el import a una ruta relativa: `require('./server/server')`.
-- 409 Email duplicado: La creación mapea errores de índice único (code 11000) a 409 con mensaje `El correo ya está registrado`.
-
 ## Scripts disponibles
 - `npm run dev`: arranca en desarrollo con recarga (tsx + TypeScript)
 
